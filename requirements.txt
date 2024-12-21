@@ -174,7 +174,7 @@ patsy==0.5.2
 pep8==1.7.1
 pexpect @ file:///tmp/build/80754af9/pexpect_1605563209008/work
 pickleshare @ file:///tmp/build/80754af9/pickleshare_1606932040724/work
-Pillow==9.2.0
+Pillow==10.3.0
 pkginfo @ file:///tmp/build/80754af9/pkginfo_1643162084911/work
 platformdirs @ file:///opt/conda/conda-bld/platformdirs_1662711380096/work
 plotly @ file:///tmp/abs_7afcdfad-dbbb-49d2-adea-186abf525c45jbnd8p95/croots/recipe/plotly_1658160053621/work
