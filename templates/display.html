@@ -9,143 +9,184 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
-        }
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-evenly;
-            margin-top: 30px;
-        }
-        .image-container {
-            text-align: center;
-            margin-top: 20px;
-            width: 45%;  /* Adjust the width for the two columns */
-            margin-bottom: 30px;  /* Spacing between rows */
-        }
-        .mesh-image {
-            margin-top: 20px;
-            width: 100%;  /* Full width of the container */
-            border: 1px solid #ccc;
-            border-radius: 10px;
+            background: linear-gradient(to right, #2a4d36, #3d6c4a); /* Dark Green Gradient */
+            color: #fff; /* White text color to contrast with the dark background */
         }
         h1 {
             text-align: center;
             margin-top: 50px;
+            color: #fff;
+            font-size: 3em;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: linear-gradient(to right, #00b14f, #007a33); /* Gradient text */
+            -webkit-background-clip: text; /* Clip gradient to text */
+            background-clip: text;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5); /* Add subtle shadow */
+            padding: 10px 20px;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Default to 2 columns */
+            gap: 20px; /* Space between images */
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+        .container.row-3,
+        .container.row-4 {
+            grid-template-columns: repeat(3, 1fr); /* 3 columns for rows 3 and 4 */
+        }
+        .image-container {
+            background: rgba(255, 255, 255, 0.9); /* Light transparent background for containers */
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .image-container:hover {
+            transform: scale(1.05); /* Slight zoom effect on hover */
         }
         h2 {
-            margin-bottom: 20px;
+            font-size: 1.5em; /* Larger caption text */
+            margin-bottom: 15px;
+            color: #333;
         }
         .volume-info {
-            margin-top: 10px;
-            font-size: 14px;
-            color: #555;
+            font-size: 1em; /* Increase the font size for volume info */
+            color: #333; /* Dark text for volume info to ensure readability */
+            margin-top: 15px;
+        }
+        .volume-info strong {
+            color: #006c3f; /* Highlight the labels in a darker green */
+        }
+        .mesh-image {
+            width: 100%; /* Full width of the container */
+            height: auto;
+            max-height: 400px; /* Limit height to prevent oversized images */
+            margin-bottom: 10px;
+        }
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr; /* Stack items in one column for smaller screens */
+            }
         }
     </style>
 </head>
 <body>
     <h1>3D Mesh Visualization</h1>
 
+    <!-- Row 1: Face and Face with Plane -->
     <div class="container">
-        <!-- First Row: Face and Face with Plane -->
         <div class="image-container">
             <h2>Face</h2>
             <div>{{ plotly_figure|safe }}</div>
             <div class="volume-info">
-                <strong>Volume:</strong> {{ full_mesh_volume }} cubic units<br>
+                <strong>Volume:</strong> {{ full_mesh_volume }} mm³<br>
                 <strong>Length:</strong> {{ full_mesh_length }} mm<br>
                 <strong>Width:</strong> {{ full_mesh_width }} mm<br>
                 <strong>Height:</strong> {{ full_mesh_height }} mm
             </div>
         </div>
-
         <div class="image-container">
             <h2>Face with Plane (X at Median)</h2>
             <div>{{ plotly_face_with_plane_figure|safe }}</div>
             <div class="volume-info">
-                <strong>Volume:</strong> {{ full_mesh_volume }} cubic units<br>
+                <strong>Volume:</strong> {{ full_mesh_volume }} mm³<br>
                 <strong>Length:</strong> {{ full_mesh_length }} mm<br>
                 <strong>Width:</strong> {{ full_mesh_width }} mm<br>
                 <strong>Height:</strong> {{ full_mesh_height }} mm
             </div>
         </div>
+    </div>
 
-        <!-- Second Row: Left Half and Right Half -->
+    <!-- Row 2: Right Half and Left Half -->
+    <div class="container">
         <div class="image-container">
             <h2>Right Half</h2>
             <div>{{ plotly_right_half_figure|safe }}</div>
             <div class="volume-info">
-                <strong>Volume:</strong> {{ right_half_volume }} cubic units<br>
+                <strong>Volume:</strong> {{ right_half_volume }} mm³<br>
                 <strong>Length:</strong> {{ right_half_length }} mm<br>
                 <strong>Width:</strong> {{ right_half_width }} mm<br>
                 <strong>Height:</strong> {{ right_half_height }} mm
             </div>
         </div>
-
         <div class="image-container">
             <h2>Left Half</h2>
             <div>{{ plotly_left_half_figure|safe }}</div>
             <div class="volume-info">
-                <strong>Volume:</strong> {{ left_half_volume }} cubic units<br>
+                <strong>Volume:</strong> {{ left_half_volume }} mm³<br>
                 <strong>Length:</strong> {{ left_half_length }} mm<br>
                 <strong>Width:</strong> {{ left_half_width }} mm<br>
                 <strong>Height:</strong> {{ left_half_height }} mm
             </div>
         </div>
+    </div>
 
-        <!-- Third Row: K-Means and Nose Extract -->
+    <!-- Row 3: K-Means, Nose Highlighted, and Nose Extract -->
+    <div class="container row-3">
         <div class="image-container">
             <h2>K-Means Clustering (K=45)</h2>
             <div>{{ kmeans_image|safe }}</div>
             <div class="volume-info">
-                <strong>Volume:</strong> {{ full_mesh_volume }} cubic units<br>
+                <strong>Volume:</strong> {{ full_mesh_volume }} mm³<br>
                 <strong>Length:</strong> {{ full_mesh_length }} mm<br>
                 <strong>Width:</strong> {{ full_mesh_width }} mm<br>
                 <strong>Height:</strong> {{ full_mesh_height }} mm
             </div>
         </div>
-
+        <div class="image-container">
+            <h2>Nose Highlighted</h2>
+            <div>{{ nose_high|safe }}</div>
+            <div class="volume-info">
+                <strong>Volume:</strong> {{ full_mesh_volume }} mm³<br>
+                <strong>Length:</strong> {{ full_mesh_length }} mm<br>
+                <strong>Width:</strong> {{ full_mesh_width }} mm<br>
+                <strong>Height:</strong> {{ full_mesh_height }} mm
+            </div>
+        </div>
         <div class="image-container">
             <h2>Nose Extract</h2>
             <div>{{ nose_image|safe }}</div>
             <div class="volume-info">
-                <strong>Volume:</strong> {{ nose_volume }} cubic units<br>
+                <strong>Volume:</strong> {{ nose_volume }} mm³<br>
                 <strong>Length:</strong> {{ nose_length }} mm<br>
                 <strong>Width:</strong> {{ nose_width }} mm<br>
                 <strong>Height:</strong> {{ nose_height }} mm
             </div>
         </div>
+    </div>
 
-        <!-- Fourth Row: Nose Left Half and Nose Right Half -->
+    <!-- Row 4: Nose Right Part, Nose Left Part, and Overlap Nose -->
+    <div class="container row-4">
         <div class="image-container">
             <h2>Nose Right Part</h2>
-            <div>{{ nose_left|safe }}</div>
-            <div class="volume-info">
-                <strong>Volume:</strong> {{ left_nose_volume }} cubic units<br>
-                <strong>Length:</strong> {{ left_nose_length }} mm<br>
-                <strong>Width:</strong> {{ left_nose_width }} mm<br>
-                <strong>Height:</strong> {{ left_nose_height }} mm
-            </div>
-        </div>
-
-        <div class="image-container">
-            <h2>Nose Left Part</h2>
             <div>{{ nose_right|safe }}</div>
             <div class="volume-info">
-                <strong>Volume:</strong> {{ right_nose_volume }} cubic units<br>
+                <strong>Volume:</strong> {{ right_nose_volume }} mm³<br>
                 <strong>Length:</strong> {{ right_nose_length }} mm<br>
                 <strong>Width:</strong> {{ right_nose_width }} mm<br>
                 <strong>Height:</strong> {{ right_nose_height }} mm
             </div>
         </div>
-
-        <!-- Fourth Row: Nose Left Half and Nose Right Half -->
+        <div class="image-container">
+            <h2>Nose Left Part</h2>
+            <div>{{ nose_left|safe }}</div>
+            <div class="volume-info">
+                <strong>Volume:</strong> {{ left_nose_volume }} mm³<br>
+                <strong>Length:</strong> {{ left_nose_length }} mm<br>
+                <strong>Width:</strong> {{ left_nose_width }} mm<br>
+                <strong>Height:</strong> {{ left_nose_height }} mm
+            </div>
+        </div>
         <div class="image-container">
             <h2>Overlap Nose</h2>
             <div>{{ overlap_nose|safe }}</div>
+            <div class="volume-info">
+            </div>
         </div>
-        </div>
-
     </div>
 </body>
 </html>

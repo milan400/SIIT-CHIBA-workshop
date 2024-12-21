@@ -3,20 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Mesh and Texture</title>
+    <title>3D Symmetry Evaluation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            background-color: #4CAF50;
+            width: 250px;
+            padding: 20px;
+            color: white;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h2 {
+            font-size: 1.6em;
+            margin-bottom: 20px;
+        }
+
+        .sidebar p {
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .top-bar {
+            background-color: #fff;
+            padding: 10px 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-size: 1.4em;
+            color: #4CAF50;
+        }
+
+        .content-title {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .content-description {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            color: #555;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .form-container label {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-container input[type="file"] {
+            margin-bottom: 20px;
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .form-container button {
+            padding: 12px 25px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            position: relative;
+        }
+
+        .form-container button:hover {
+            background-color: #45a049;
+        }
+
+        /* Loading spinner animation */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4CAF50;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 2s linear infinite;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            visibility: hidden; /* Hidden by default */
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Disable button during upload */
+        .button-disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .logos-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .logos-container img {
+            width: 150px;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .team-members {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .team-members div {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 20px;
+            font-size: 1.2em;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        .team-members div:hover {
+            background-color: #45a049;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 0.9em;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
-    <h1>Upload a 3D Mesh File</h1>
-    <form action="/uploader" method="post" enctype="multipart/form-data">
-        <label for="mesh">Mesh File (.obj):</label>
-        <input type="file" name="file" id="mesh" accept=".obj"><br><br>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>SIIT-Chiba Workshop</h2>
+        <p>3D Symmetry Evaluation of Facial Parts</p>
+        
+        <!-- Project Design and Team Information -->
+        <div>
+            <h3>Project Design:</h3>
+            <p>Prof. Toshiya Nakaguchi<br>Chiba University</p>
+            <h3>Clinical Advisor:</h3>
+            <p>Yoshitaka Kubota<br>Chiba University Hospital</p>
+            <h3>Team Members:</h3>
+            <p>Chicho, Chivorn, Dornny, Milan</p>
+        </div>
+    </div>
 
-        <label for="texture">Texture File (Optional):</label>
-        <input type="file" name="texture" id="texture" accept=".png, .jpg, .jpeg"><br><br>
+    <!-- Main content -->
+    <div class="main-content">
+        <!-- Top bar -->
+        <div class="top-bar">
+            3D Symmetry Evaluation of Facial Parts
+        </div>
 
-        <button type="submit">Upload</button>
-    </form>
+        <!-- Logos Section -->
+        <div class="logos-container">
+            <img src="static/siit.jpg" alt="SIIT Logo">
+            <img src="static/chiba.jpg" alt="Chiba University Logo">
+        </div>
+
+        <!-- Main Content -->
+        <div class="form-container">
+            <h2 class="content-title">Upload</h2>
+            <p class="content-description">Please upload a 3D mesh file (.obj) and texture file (.png, .jpg, .jpeg).</p>
+
+            <form action="/uploader" method="post" enctype="multipart/form-data">
+                <label for="mesh">Mesh File (.obj):</label>
+                <input type="file" name="file" id="mesh" accept=".obj"><br>
+
+                <label for="texture">Texture File:</label>
+                <input type="file" name="texture" id="texture" accept=".png, .jpg, .jpeg"><br><br>
+
+                <button type="submit" id="uploadBtn" onclick="showLoadingAnimation(event)">
+                    Upload
+                    <div class="loader" id="loader"></div>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        © 2024 SIIT-Chiba Joint Workshop | All rights reserved
+    </footer>
+
+    <script>
+        function showLoadingAnimation(event) {
+            event.preventDefault();  // Prevent form submission
+            const button = document.getElementById('uploadBtn');
+            const loader = document.getElementById('loader');
+            loader.style.visibility = 'visible';  // Show the loader
+            button.classList.add('button-disabled'); // Disable button
+            
+            // Simulate a file upload by setting a timeout (e.g., 3 seconds)
+            setTimeout(() => {
+                // Simulate the form submission here or trigger actual submission
+                document.querySelector('form').submit();
+            }, 3000);
+        }
+    </script>
 </body>
 </html>
-
-
