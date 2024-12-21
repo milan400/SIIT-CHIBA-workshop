@@ -176,7 +176,7 @@ def mirror_and_overlap(fig_left, fig_right):
         marker=dict(size=5, color=combined_colors)
     )])
 
-    fig_combined.update_layout(title='Mirrored and Overlapped Nose', scene=dict(
+    fig_combined.update_layout(scene=dict(
         xaxis_title='X',
         yaxis_title='Y',
         zaxis_title='Z'
@@ -276,7 +276,7 @@ def nose_visualize_test(file_path, texture_path):
         marker=dict(color=cluster_colors[cluster_vertices_indices] / 255.0, size=5)
     )])
 
-    fig.update_layout(title=f'Cluster {target_cluster_index} (Nose) with Texture', scene=dict(
+    fig.update_layout(scene=dict(
         xaxis_title='X',
         yaxis_title='Y',
         zaxis_title='Z'
@@ -344,7 +344,7 @@ def nose_visualize_test(file_path, texture_path):
         mode='markers',
         marker=dict(size=5, color='blue')
     )])
-    fig_left.update_layout(title='Left Half of Nose', scene=dict(
+    fig_left.update_layout(scene=dict(
         xaxis_title='X',
         yaxis_title='Y',
         zaxis_title='Z'
@@ -359,7 +359,7 @@ def nose_visualize_test(file_path, texture_path):
         mode='markers',
         marker=dict(size=5, color='red')
     )])
-    fig_right.update_layout(title='Right Half of Nose', scene=dict(
+    fig_right.update_layout(scene=dict(
         xaxis_title='X',
         yaxis_title='Y',
         zaxis_title='Z'
@@ -392,7 +392,7 @@ def nose_visualize_test(file_path, texture_path):
         mode='markers',
         marker=dict(size=5, color=left_uv_colors)
     )])
-    fig_left.update_layout(title='Left Half of Nose with Texture', scene=dict(
+    fig_left.update_layout(scene=dict(
         xaxis_title='X',
         yaxis_title='Y',
         zaxis_title='Z'
@@ -407,7 +407,7 @@ def nose_visualize_test(file_path, texture_path):
         mode='markers',
         marker=dict(size=5, color=right_uv_colors)
     )])
-    fig_right.update_layout(title='Right Half of Nose with Texture', scene=dict(
+    fig_right.update_layout(scene=dict(
         xaxis_title='X',
         yaxis_title='Y',
         zaxis_title='Z'
@@ -418,6 +418,100 @@ def nose_visualize_test(file_path, texture_path):
 
 
     return fig.to_html(full_html=False),fig_left.to_html(full_html=False),fig_right.to_html(full_html=False), nose_length, nose_width, nose_height, nose_volume,left_nose_length, left_nose_width, left_nose_height, left_nose_volume,right_nose_length, right_nose_width, right_nose_height, right_nose_volume, overlap_nose.to_html(full_html=False)
+
+
+def nose_highlight(file_path, texture_path):
+
+    # Load the 3D model
+    #file_path = 'Pasha_guard_head.obj'  # Replace with your OBJ file path
+    mesh = trimesh.load(file_path, process=False)
+
+    # Extract vertices and UV coordinates
+    vertices = mesh.vertices
+    uv_coords = mesh.visual.uv  # UV coordinates for texture mapping
+
+    # Load the texture image
+    #texture_path = 'Pasha_guard_head_0.png'  # Replace with your texture file path
+    texture_img = Image.open(texture_path)
+    texture_img = np.array(texture_img)  # Convert the texture to a NumPy array
+
+    # Step 1: Perform K-means clustering on the vertices
+    num_clusters = 45  # Number of clusters you want
+    kmeans = KMeans(n_clusters=num_clusters, random_state=42)
+    kmeans.fit(vertices)
+
+    # Get the labels for each vertex (which cluster each vertex belongs to)
+    labels = kmeans.labels_
+
+    # Step 2: Define a more refined approach to target the nose
+
+    # Find the median of the X values (center of the face)
+    x_median = np.median(vertices[:, 0])
+
+    # Define a smaller X range (e.g., within 5% of the X spread, targeting the center of the face)
+    x_range = 0.05 * np.ptp(vertices[:, 0])  # A smaller range around the median X value
+
+    # Define Z range (targeting lower Z but avoiding extremes like chin)
+    z_min = np.percentile(vertices[:, 2], 20)  # A slightly lower range to avoid chin
+    z_max = np.percentile(vertices[:, 2], 40)  # Focusing on a central portion of the Z values
+
+    # Step 3: Loop through clusters and focus on the nose
+    clusters = {i: vertices[labels == i] for i in range(num_clusters)}
+
+    # Initialize variables to track the best cluster (center X, mid-range Z)
+    target_cluster_index = None
+    best_distance = np.inf  # To track proximity to the center of the face
+
+    for i, cluster in clusters.items():
+        avg_x = np.mean(cluster[:, 0])
+        avg_z = np.mean(cluster[:, 2])
+
+        # Check if the cluster is within the central X range and Z value range
+        if abs(avg_x - x_median) < x_range and z_min < avg_z < z_max:
+            # Calculate how close the Z value is to the expected nose Z
+            distance = abs(avg_z - np.median(vertices[:, 2]))  # Want it close to the middle of the Z values
+            if distance < best_distance:
+                best_distance = distance
+                target_cluster_index = i
+
+    # Check if a valid cluster was found
+    if target_cluster_index is None:
+        raise ValueError("No valid cluster found for the nose region.")
+
+    # Get the indices of the vertices in the selected cluster
+    cluster_vertices_indices = np.where(labels == target_cluster_index)[0]
+
+    # Step 4: Create a color array
+    colors = np.zeros((len(vertices), 3))  # Default: dark gray (almost black)
+
+    # Map the UV coordinates of the nose to texture colors
+    for i, uv in enumerate(uv_coords[cluster_vertices_indices]):
+        x_tex = int(uv[0] * (texture_img.shape[1] - 1))
+        y_tex = int((1 - uv[1]) * (texture_img.shape[0] - 1))  # Flip y coordinate for correct mapping
+        colors[cluster_vertices_indices[i]] = texture_img[y_tex, x_tex][:3]  # Apply texture color
+
+    # Normalize the colors
+    colors /= 255.0
+
+    # Step 5: Visualize the entire model with the nose highlighted
+    fig = go.Figure(data=[go.Scatter3d(
+        x=vertices[:, 0],
+        y=vertices[:, 1],
+        z=vertices[:, 2],
+        mode='markers',
+        marker=dict(color=colors, size=2)  # Nose region is colored; others are dark
+    )])
+
+    fig.update_layout(scene=dict(
+        xaxis_title='X',
+        yaxis_title='Y',
+        zaxis_title='Z'
+    ))
+
+    return fig.to_html(full_html=False)
+
+
+
 
 
 
@@ -455,7 +549,7 @@ def kmeans_visualize(file_path):
         marker=dict(color=colors, size=5)
     )])
 
-    fig.update_layout(title='K-means Clustering of 3D Mesh Vertices with Random Colors', scene=dict(
+    fig.update_layout(scene=dict(
         xaxis_title='X',
         yaxis_title='Y',
         zaxis_title='Z'
@@ -552,9 +646,12 @@ def uploader():
             # k-Means clustering
             kmeans_image = kmeans_visualize(file_path)
 
+            nose_high = nose_highlight(file_path, texture_path)
+
             nose_image, nose_left, nose_right, nose_length, nose_width, nose_height, nose_volume,left_nose_length, left_nose_width, left_nose_height, left_nose_volume,right_nose_length, right_nose_width, right_nose_height, right_nose_volume, overlap_nose = nose_visualize_test(file_path, texture_path)
 
             return render_template('display.html', 
+                                    nose_high = nose_high,
                                     overlap_nose = overlap_nose,
                                    plotly_figure=plotly_figure,
                                    plotly_face_with_plane_figure=plotly_face_with_plane_figure,
