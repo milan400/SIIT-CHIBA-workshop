@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Mesh and Texture</title>
+</head>
+<body>
+    <h1>Upload a 3D Mesh File</h1>
+    <form action="/uploader" method="post" enctype="multipart/form-data">
+        <label for="mesh">Mesh File (.obj):</label>
+        <input type="file" name="file" id="mesh" accept=".obj"><br><br>
+
+        <label for="texture">Texture File (Optional):</label>
+        <input type="file" name="texture" id="texture" accept=".png, .jpg, .jpeg"><br><br>
+
+        <button type="submit">Upload</button>
+    </form>
+</body>
+</html>
+
+
